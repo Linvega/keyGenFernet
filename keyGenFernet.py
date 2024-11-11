@@ -45,7 +45,7 @@ def load_key(keyname):
     with open(keyname, "rb") as key_file:
         return key_file.read()
     
-# Шаг 2: Зашифруйте токен и сохраните его в JSON
+# Функция для кодирования текста в файл
 def encrypt_and_save(text):
     key = load_key(f"{win.lePathDirKey.text()}\\{win.leSelectKey.text()}")
     fernet = fer(key)
@@ -56,6 +56,7 @@ def encrypt_and_save(text):
         json.dump({"encrypted_" : encrypted_token.decode()}, json_file)
     return filename
 
+# Функция для декодирования файла
 def load_and_decrypt(filename):
     key = load_key(f"{win.lePathDirKey.text()}\\{win.leSelectKey.text()}")
     fernet = fer(key)
@@ -69,11 +70,13 @@ def load_and_decrypt(filename):
     decrypted_text = fernet.decrypt(encrypted_text.encode()).decode()
     return decrypted_text
 
+# Функция для выбора деректории для сохранения ключа
 def selectFolderKey():
     directory = QFileDialog.getExistingDirectory(win, "Выберите директорию")
     if directory:
         win.lePathDirKey.setText(directory)
 
+# Функция для выбора уже сущетсвующего ключа
 def selectKey():
     file_path, _ = QFileDialog.getOpenFileName(win, "Выберите файл")
         
@@ -81,9 +84,11 @@ def selectKey():
         win.lePathDirKey.setText(os.path.dirname(file_path))
         win.leSelectKey.setText(os.path.basename(file_path))    
 
+# Функция для открытия уже выбранной директории
 def openFolderKey(path):
     os.startfile(path)
 
+# Обработка кнопки "Зашифровать"
 def buttEncrypt():
     if win.teText.toPlainText() == "":
         win.laErrorText.setText("Ошибка: поле для текста пустое")
@@ -92,12 +97,14 @@ def buttEncrypt():
     else:
         win.laErrorText.setText(f"Текст зашифрован в файл: {encrypt_and_save(win.teText.toPlainText())}")
 
+# Функция для выбора файла, который нужно расшифровать
 def selectFileForDescrypt():
     file_path, _ = QFileDialog.getOpenFileName(win, "Выберите файл")
         
     if file_path:  # Если файл выбран
         win.leSelectFile.setText(file_path)
 
+# Обработка кнопки "Расшифровать"
 def buttDecrypt():
     if win.leSelectFile.text() == "":
         win.laError_2.setText("Ошибка: не выбран файл для расшифровки")
@@ -106,26 +113,28 @@ def buttDecrypt():
     else:
         win.teText_2.setText(load_and_decrypt(win.leSelectFile.text()))
 
-
 win.lePathDirKey.setText(full_directory)
 
-win.bGenerateKey.clicked.connect(lambda: generate_key(win.leNameKey.text()))
 
-win.bCopyPathKey.clicked.connect(lambda: pyperclip.copy(last_file_dir))
+# Установка функций на кнопки в форме
 
-win.bOpenFolderKey.clicked.connect(lambda: openFolderKey(last_file_dir_no_file))
+win.bGenerateKey.clicked.connect(lambda: generate_key(win.leNameKey.text())) # Кнопка "Сгенерировать ключ"
 
-win.bSetPathKey.clicked.connect(selectFolderKey)
+win.bCopyPathKey.clicked.connect(lambda: pyperclip.copy(last_file_dir)) # Кнопка "Скопировать путь к файлу"
 
-win.bDefaultPathKey.clicked.connect(lambda: win.lePathDirKey.setText(full_directory))
+win.bOpenFolderKey.clicked.connect(lambda: openFolderKey(last_file_dir_no_file)) # Кнопка "Открыть папку с файлом"
 
-win.bSelectKey.clicked.connect(selectKey)
+win.bSetPathKey.clicked.connect(selectFolderKey)  # Кнопка "Выбрать путь"
 
-win.bEncrypt.clicked.connect(buttEncrypt)
+win.bDefaultPathKey.clicked.connect(lambda: win.lePathDirKey.setText(full_directory)) # Кнопка "Установить стандартный путь"
 
-win.bSelectFile.clicked.connect(selectFileForDescrypt)
+win.bSelectKey.clicked.connect(selectKey) # Кнопка "Выбрать ключ"
 
-win.bDecrypt.clicked.connect(buttDecrypt)
+win.bEncrypt.clicked.connect(buttEncrypt)  # Кнопка "Зашифровать текст"
 
-win.show()
-sys.exit(app.exec())
+win.bSelectFile.clicked.connect(selectFileForDescrypt) # Кнопка "Выбрать файл"
+
+win.bDecrypt.clicked.connect(buttDecrypt) # Кнопка "Расшифровать файл"
+
+win.show() # ПОказать окно программы
+sys.exit(app.exec()) # Запуск приложения
